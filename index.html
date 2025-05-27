@@ -1,0 +1,74 @@
+<!-- PIX-Style Mini-Jeu - Escape Game -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PIX Lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+ </head>
+<body>
+  <header>
+    <div class="logo">PIX•Lab</div>
+    <h1>PIX et l'IA adaptative</h1>
+  </header>
+
+  <div class="container">
+    <p>Bienvenue dans ce mini-défi inspiré de PIX. Vous allez répondre à 4 questions pour tester vos compétences numériques. Choisissez la couleur de votre équipe pour commencer :</p>
+
+    <div class="team-selection">
+      <button class="green" onclick="selectTeam('green')">Équipe Verte</button>
+      <button class="yellow" onclick="selectTeam('yellow')">Équipe Jaune</button>
+      <button class="red" onclick="selectTeam('red')">Équipe Rouge</button>
+      <button class="blue" onclick="selectTeam('blue')">Équipe Bleue</button>
+    </div>
+
+    <form id="quiz" class="hidden">
+      <div id="q1" class="question active">
+        <p><strong>1) Combien y a-t-il de domaines à travailler sur PIX ?</strong></p>
+        <button type="button" class="qcm-option" data-question="q1" data-value="0">3</button>
+        <button type="button" class="qcm-option" data-question="q1" data-value="1">5</button>
+        <button type="button" class="qcm-option" data-question="q1" data-value="0">16</button>
+        <button type="button" class="qcm-option" data-question="q1" data-value="0">121</button>
+      </div>
+
+      <div id="q2" class="question">
+        <p><strong>2) Quels sont les indices qui permettent de repérer qu’un texte a été écrit par une IA ?</strong></p>
+        <button type="button" class="qcm-option" data-question="q2" data-value="1">Erreurs subtiles et absurdités</button>
+        <button type="button" class="qcm-option" data-question="q2" data-value="0">Style robotique sans imitation d’un style humain</button>
+        <button type="button" class="qcm-option" data-question="q2" data-value="1">Structure très rigide</button>
+        <button type="button" class="qcm-option" data-question="q2" data-value="1">Manque d’analyse critique et d’avis tranché</button>
+        <button type="button" class="qcm-option" data-question="q2" data-value="0">Difficultés à résumer de manière concise</button>
+        <button type="button" class="qcm-option" data-question="q2" data-value="0">C’est impossible de le repérer</button>
+      </div>
+
+      <div id="q3" class="question">
+        <p><strong>3) Quels sites peuvent vous permettre de créer avec de l’IA ?</strong></p>
+        <button type="button" class="qcm-option" data-question="q3" data-value="1">ChatGPT</button>
+        <button type="button" class="qcm-option" data-question="q3" data-value="1">Canva</button>
+        <button type="button" class="qcm-option" data-question="q3" data-value="1">Quiz Wizard</button>
+        <button type="button" class="qcm-option" data-question="q3" data-value="1">Vittascience</button>
+        <button type="button" class="qcm-option" data-question="q3" data-value="1">Dall-E</button>
+      </div>
+
+      <div id="q4" class="question">
+        <p><strong>4) Dans quel(s) domaine(s) l’IA ne peut-il pas être utilisé aujourd’hui ?</strong></p>
+        <button type="button" class="qcm-option" data-question="q4" data-value="0">La banque</button>
+        <button type="button" class="qcm-option" data-question="q4" data-value="0">La santé</button>
+        <button type="button" class="qcm-option" data-question="q4" data-value="1">La pensée critique</button>
+        <button type="button" class="qcm-option" data-question="q4" data-value="1">L’éthique, le jugement moral</button>
+        <button type="button" class="qcm-option" data-question="q4" data-value="1">Les compétences interpersonnelles et la construction de relations</button>
+      </div>
+
+      <button type="button" onclick="nextQuestion()">Suivant</button>
+    </form>
+
+    <div id="result" class="result"></div>
+  </div>
+
+  <footer>
+    Créé par la DRANE - Académie de La Réunion | Inspiré de PIX
+  </footer>
+<script src="script.js"></script>
+</body>
