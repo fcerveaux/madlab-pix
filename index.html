@@ -3,76 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Un peu de PIX ?</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <title>Test – Un peu de PIX ?</title>
+  <style>
+    body{font-family:system-ui,Arial,sans-serif;margin:0;background:#f5f5f5}
+    header{background:linear-gradient(90deg,#1976d2,#7e57c2);padding:16px;text-align:center}
+    header h1{margin:0;color:#ffe600}
+    .container{max-width:800px;margin:20px auto;background:#fff;padding:16px;border-radius:12px}
+    .hidden{display:none!important}
+    .teams{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .team{padding:10px;border:none;border-radius:8px;color:#fff;font-weight:700;cursor:pointer}
+    .team-green{background:#43a047}.team-yellow{background:#fbc02d;color:#222}
+    .team-red{background:#e53935}.team-blue{background:#1e88e5}
+  </style>
 </head>
 <body>
-  <header class="site-header">
-    <h1 class="site-title">Un peu de PIX ?</h1>
-  </header>
-
-  <main class="container" id="app">
-    <!-- Écran d’accueil -->
+  <header><h1>Un peu de PIX ?</h1></header>
+  <main class="container">
     <section id="screen-home">
-      <h2>Bienvenue</h2>
-      <p>
-        PIX est la plateforme publique française d’évaluation et de développement des
-        compétences numériques. Ce mini-quiz reprend la logique PIX : répondez aux questions,
-        puis consultez vos résultats et des ressources pour progresser.
-      </p>
-      <h3>Choisissez votre équipe</h3>
+      <p>Écran d’accueil. Choisissez votre équipe :</p>
       <div class="teams">
-        <button class="team team-green" data-team="green" aria-label="Équipe verte">Verte</button>
-        <button class="team team-yellow" data-team="yellow" aria-label="Équipe jaune">Jaune</button>
-        <button class="team team-red" data-team="red" aria-label="Équipe rouge">Rouge</button>
-        <button class="team team-blue" data-team="blue" aria-label="Équipe bleue">Bleue</button>
+        <button class="team team-green" data-team="green">Verte</button>
+        <button class="team team-yellow" data-team="yellow">Jaune</button>
+        <button class="team team-red" data-team="red">Rouge</button>
+        <button class="team team-blue" data-team="blue">Bleue</button>
       </div>
     </section>
 
-    <!-- Écran Quiz (questions successives) -->
-    <section id="screen-quiz" class="hidden" aria-live="polite">
-      <div class="quiz-header">
-        <div id="progress">Question <span id="qIndex">1</span>/<span id="qTotal">4</span></div>
-      </div>
-
-      <div id="question-area">
-        <!-- Titre question -->
-        <h2 id="question-text"></h2>
-        <!-- Options -->
-        <div id="options" class="options"></div>
-      </div>
-
-      <div class="actions">
-        <button id="btn-prev" class="btn-secondary" type="button">Précédent</button>
-        <button id="btn-next" class="btn-primary" type="button">Suivant</button>
-        <button id="btn-finish" class="btn-primary hidden" type="button">Valider mes réponses</button>
-      </div>
-    </section>
-
-    <!-- Écran Résultats -->
-    <section id="screen-results" class="hidden">
-      <h2>Résultats</h2>
-      <p id="score-line"></p>
-
-      <div id="review"></div>
-
-      <div id="final-feedback" class="final-feedback"></div>
-
-      <div id="retry-zone" class="actions hidden">
-        <button id="btn-retry" class="btn-primary" type="button">Cliquez pour recommencer</button>
-      </div>
+    <section id="screen-quiz" class="hidden">
+      <p>Ça marche ✅ — Le clic sur une équipe vous a amené ici.</p>
     </section>
   </main>
 
-  <footer class="site-footer">
-    Créé par la DRANE – Académie de La Réunion • Interface inspirée de PIX
-  </footer>
-
-  <script src="script.js"></script>
   <script>
-  console.log("Inline OK — script.js devrait aussi se charger.");
-</script>
+    // LOG DEMARRAGE
+    console.log("JS inline chargé ✅");
+
+    const show = (id) => {
+      ["#screen-home","#screen-quiz"].forEach(sel=>document.querySelector(sel).classList.add("hidden"));
+      document.querySelector(id).classList.remove("hidden");
+    };
+
+    document.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".team");
+      if(!btn) return;
+      console.log("Clic équipe:", btn.dataset.team);
+      show("#screen-quiz");
+    });
+  </script>
 </body>
 </html>
-
