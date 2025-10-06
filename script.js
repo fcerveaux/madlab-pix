@@ -1,4 +1,3 @@
-console.log("script.js chargé ✅");
 // ------------------------------
 // Données du quiz
 // ------------------------------
@@ -63,12 +62,11 @@ const QUESTIONS = [
 
 // Feedback final par équipe quand score >= 80%
 const TEAM_FEEDBACK = {
-  green: "Votre indice est 'Operating'. Maintenant, faites votre part.",
-  yellow: "Votre indice est 'System to'. Maintenant, faites votre part.",
-  red:   "Votre indice est 'Lift up'. Maintenant, faites votre part.",
-  blue:  "Votre indice est 'Our World'. Maintenant, faites votre part."
+  green: "Indice d’équipe : Operating",
+  yellow: "Indice d’équipe : System to",
+  red:   "Indice d’équipe : Lift up",
+  blue:  "Indice d’équipe : Our\nWorld" // sur 2 lignes
 };
-
 
 // ------------------------------
 // État
@@ -244,62 +242,40 @@ function renderResults(){
 // ------------------------------
 document.addEventListener("DOMContentLoaded", () => {
 
-  // ------------------------------
-// Actions / Navigation (robustes)
-// ------------------------------
+  // Choix de l’équipe
+  $$(".team").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.team = btn.dataset.team;
+      state.index = 0;
+      state.selections = Array.from({length: QUESTIONS.length}, ()=>[]);
+      $("#screen-home").classList.add("hidden");
+      show("#screen-quiz");
+      renderQuestion();
+    });
+  });
 
-// Délégation des clics pour les boutons d'équipe (même si le DOM charge lentement)
-document.addEventListener("click", (e) => {
-  const teamBtn = e.target.closest(".team");
-  if (teamBtn) {
-    state.team = teamBtn.dataset.team;
-    state.index = 0;
-    state.selections = Array.from({ length: QUESTIONS.length }, () => []);
-    show("#screen-quiz");
-    renderQuestion();
-  }
-});
-
-// Bouton Précédent
-document.addEventListener("click", (e) => {
-  if (e.target.id === "btn-prev") {
-    if (state.index > 0) {
+  // Navigation quiz
+  $("#btn-prev").addEventListener("click", ()=>{
+    if (state.index > 0){
       state.index--;
       renderQuestion();
     }
-  }
-});
+  });
 
-// Bouton Suivant
-document.addEventListener("click", (e) => {
-  if (e.target.id === "btn-next") {
-    if (state.index < QUESTIONS.length - 1) {
+  $("#btn-next").addEventListener("click", ()=>{
+    if (state.index < QUESTIONS.length - 1){
       state.index++;
       renderQuestion();
     }
-  }
-});
+  });
 
-// Bouton Valider
-document.addEventListener("click", (e) => {
-  if (e.target.id === "btn-finish") {
+  $("#btn-finish").addEventListener("click", ()=>{
     renderResults();
-  }
-});
+  });
 
-// Bouton Recommencer
-document.addEventListener("click", (e) => {
-  if (e.target.id === "btn-retry") {
-    state = { team: null, index: 0, selections: [] };
+  // Recommencer (revient à l’accueil pour resélectionner l’équipe)
+  $("#btn-retry").addEventListener("click", ()=>{
+    state = { team:null, index:0, selections:[] };
     show("#screen-home");
-  }
-});
-
-// Afficher l’écran d’accueil dès que possible (si besoin)
-show("#screen-home");
-
   });
 });
-
-
-
