@@ -1,86 +1,282 @@
-    let current = 1;
-    let team = '';
+// ------------------------------
+// Données du quiz
+// ------------------------------
+const QUESTIONS = [
+  {
+    text: "1) Combien y a-t-il de domaines à travailler sur PIX ?",
+    options: [
+      { t: "3", ok: false },
+      { t: "5", ok: true },
+      { t: "16", ok: false },
+      { t: "121", ok: false },
+    ],
+    more: [
+      { label: "Référentiel général des domaines PIX", url: "https://pix.unilim.fr/wp-content/uploads/sites/28/2018/06/Referentiel-Vue_generale-Referentiels-PIX-2018-04-04.pdf" }
+    ]
+  },
+  {
+    text: "2) Quels sont les indices qui permettent de repérer qu’un texte a été écrit par une IA ?",
+    options: [
+      { t: "Erreurs subtiles et absurdités", ok: true },
+      { t: "Style robotique sans imitation d’un style humain", ok: false },
+      { t: "Structure très rigide", ok: true },
+      { t: "Manque d’analyse critique et d’avis tranché", ok: true },
+      { t: "Difficultés à résumer de manière concise", ok: false },
+      { t: "C’est impossible de le repérer", ok: false },
+    ],
+    more: [
+      { label: "Comment repérer un texte écrit avec une IA", url: "https://www.perplexity.ai/search/comment-reperer-un-texte-ecrit-3BPU1KpxTiK1phudih21Mg" }
+    ]
+  },
+  {
+    text: "3) Quels sites peuvent vous permettre de créer avec de l’IA ?",
+    options: [
+      { t: "ChatGPT", ok: true },
+      { t: "Canva", ok: true },
+      { t: "Quiz Wizard", ok: true },
+      { t: "Vittascience", ok: true },
+      { t: "Dall-E", ok: true },
+    ],
+    more: [
+      { label: "Générer des images (comparatif)", url: "https://www.perplexity.ai/search/quelle-ia-pour-generer-des-ima-55CF2caaSdexJ1kyun7S3g" },
+      { label: "Générer des quiz (Wooclap – Quiz Wizard)", url: "https://www.wooclap.com/fr/quiz-wizard/" },
+      { label: "IA créatives (Vittascience)", url: "https://fr.vittascience.com/ia/" }
+    ]
+  },
+  {
+    text: "4) Dans quel(s) domaine(s) l’IA ne peut-il pas être utilisé aujourd’hui ?",
+    options: [
+      { t: "La banque", ok: false },
+      { t: "La santé", ok: false },
+      { t: "La pensée critique", ok: true },
+      { t: "L’éthique, le jugement moral", ok: true },
+      { t: "Les compétences interpersonnelles et la construction de relations", ok: true },
+    ],
+    more: [
+      { label: "Secteurs impactés par l’IA", url: "https://www.intelligence-artificielle-school.com/alternance-et-entreprises/les-secteurs-impactes/" },
+      { label: "5 compétences humaines irremplaçables", url: "https://www.jobillico.com/blog/5-competences-que-lintelligence-artificielle-ne-pourra-jamais-remplacer/" },
+      { label: "L’IA au service de la personne (vidéo)", url: "https://www.youtube.com/watch?v=y2a2ItHVz0A" }
+    ]
+  }
+];
 
-    function selectTeam(color) {
-  team = color;
-  document.querySelector('.team-selection').classList.add('hidden');
-  document.getElementById('quiz').classList.remove('hidden');
-  document.querySelectorAll('.question').forEach(q => q.classList.remove('active'));
-  document.getElementById('q1').classList.add('active');
+// Feedback final par équipe quand score >= 80%
+const TEAM_FEEDBACK = {
+  green: "Votre indice est 'Operating'. Maintenant, faites votre part.",
+  yellow: "Votre indice est 'System to'. Maintenant, faites votre part.",
+  red:   "Votre indice est 'Lift up'. Maintenant, faites votre part.",
+  blue:  "Votre indice est 'Our World'. Maintenant, faites votre part."
+};
 
-  // Attacher les écouteurs après affichage
-  document.querySelectorAll('.qcm-option').forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.classList.toggle('selected');
+
+// ------------------------------
+// État
+// ------------------------------
+let state = {
+  team: null,              // 'green' | 'yellow' | 'red' | 'blue'
+  index: 0,                // index question en cours
+  selections: []           // tableau d'ensembles d'indices sélectionnés par question
+};
+
+// ------------------------------
+// Helpers
+// ------------------------------
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+
+function show(idToShow){
+  // cache tous les écrans
+  ["#screen-home","#screen-quiz","#screen-results"].forEach(id => $(id).classList.add("hidden"));
+  $(idToShow).classList.remove("hidden");
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[state.index];
+  $("#qIndex").textContent = (state.index + 1).toString();
+  $("#qTotal").textContent = QUESTIONS.length.toString();
+  $("#question-text").textContent = q.text;
+
+  const optionsHost = $("#options");
+  optionsHost.innerHTML = "";
+
+  const selectedSet = new Set(state.selections[state.index] || []);
+
+  q.options.forEach((opt, i) => {
+    const id = `q${state.index}_opt_${i}`;
+    const wrapper = document.createElement("label");
+    wrapper.className = "option";
+    wrapper.htmlFor = id;
+
+    const input = document.createElement("input");
+    input.type = "checkbox";                   // multi-réponses
+    input.id = id;
+    input.dataset.idx = String(i);
+    input.checked = selectedSet.has(i);
+
+    input.addEventListener("change", () => {
+      const cur = new Set(state.selections[state.index] || []);
+      if (input.checked) cur.add(i); else cur.delete(i);
+      state.selections[state.index] = Array.from(cur);
+      wrapper.classList.toggle("selected", input.checked);
+    });
+
+    const span = document.createElement("span");
+    span.textContent = opt.t;
+
+    wrapper.appendChild(input);
+    wrapper.appendChild(span);
+    wrapper.classList.toggle("selected", input.checked);
+    optionsHost.appendChild(wrapper);
+  });
+
+  // Boutons navigation
+  $("#btn-prev").disabled = state.index === 0;
+  $("#btn-next").classList.toggle("hidden", state.index === QUESTIONS.length - 1);
+  $("#btn-finish").classList.toggle("hidden", state.index !== QUESTIONS.length - 1);
+}
+
+function arraysEqualAsSets(a1, a2){
+  if (a1.length !== a2.length) return false;
+  const s1 = new Set(a1), s2 = new Set(a2);
+  for (const v of s1) if (!s2.has(v)) return false;
+  return true;
+}
+
+// calcule % sur base "question parfaite" (toutes bonnes cochées, aucune mauvaise)
+// -> 4 questions => 0,25,50,75,100 ; seuil 80% => seuls les 100% passent
+function computeScorePercent(){
+  let correctQuestions = 0;
+  QUESTIONS.forEach((q, qi) => {
+    const selected = state.selections[qi] || [];
+    const correctIdx = q.options.map((o, i) => o.ok ? i : null).filter(v => v !== null);
+    // Parfaite si sets identiques
+    if (arraysEqualAsSets(selected, correctIdx)) correctQuestions++;
+  });
+  return Math.round((correctQuestions / QUESTIONS.length) * 100);
+}
+
+function renderResults(){
+  show("#screen-results");
+
+  const percent = computeScorePercent();
+  $("#score-line").textContent = `Score : ${percent}% de réussite`;
+
+  const reviewHost = $("#review");
+  reviewHost.innerHTML = "";
+
+  QUESTIONS.forEach((q, qi) => {
+    const block = document.createElement("div");
+    block.className = "review-block";
+
+    const title = document.createElement("div");
+    title.className = "review-title";
+    title.textContent = q.text;
+    block.appendChild(title);
+
+    const ul = document.createElement("ul");
+    ul.className = "review-options";
+
+    const selected = new Set(state.selections[qi] || []);
+    const correctIdx = new Set(q.options.map((o,i)=>o.ok?i:null).filter(v=>v!==null));
+
+    q.options.forEach((opt, i) => {
+      const li = document.createElement("li");
+      const userPicked = selected.has(i);
+
+      // balise du texte d'option
+      const label = document.createElement(opt.ok ? "strong" : "span");
+      label.textContent = opt.t;
+
+      if (opt.ok) {
+        label.classList.add("correct"); // vert + gras via CSS
+      }
+      if (userPicked) {
+        label.classList.add("chosen"); // souligner ce que l'utilisateur a coché
+      }
+
+      li.appendChild(label);
+      ul.appendChild(li);
+    });
+
+    block.appendChild(ul);
+
+    // Afficher "Pour aller plus loin" si la question n'est pas parfaite
+    const isPerfect = arraysEqualAsSets(Array.from(selected), Array.from(correctIdx));
+    if (!isPerfect && q.more && q.more.length){
+      const moreTitle = document.createElement("p");
+      moreTitle.innerHTML = "<em>Pour aller plus loin :</em>";
+      block.appendChild(moreTitle);
+
+      const m = document.createElement("ul");
+      m.className = "more-links";
+      q.more.forEach(link=>{
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = link.url; a.target = "_blank"; a.rel = "noopener";
+        a.textContent = link.label;
+        li.appendChild(a);
+        m.appendChild(li);
+      });
+      block.appendChild(m);
+    }
+
+    reviewHost.appendChild(block);
+  });
+
+  const fb = $("#final-feedback");
+  const retry = $("#retry-zone");
+
+  if (percent >= 80) {
+    const msg = TEAM_FEEDBACK[state.team] || "Bravo !";
+    fb.textContent = msg;
+    fb.classList.remove("hidden");
+    retry.classList.add("hidden"); // pas de recommencer
+  } else {
+    fb.textContent = "";
+    fb.classList.add("hidden");
+    retry.classList.remove("hidden"); // bouton recommencer visible
+  }
+}
+
+// ------------------------------
+// Actions / Navigation
+// ------------------------------
+document.addEventListener("DOMContentLoaded", () => {
+
+  // Choix de l’équipe
+  $$(".team").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.team = btn.dataset.team;
+      state.index = 0;
+      state.selections = Array.from({length: QUESTIONS.length}, ()=>[]);
+      $("#screen-home").classList.add("hidden");
+      show("#screen-quiz");
+      renderQuestion();
     });
   });
+
+  // Navigation quiz
+  $("#btn-prev").addEventListener("click", ()=>{
+    if (state.index > 0){
+      state.index--;
+      renderQuestion();
     }
+  });
 
-    function nextQuestion() {
-      if (current < 4) {
-        document.getElementById('q' + current).classList.remove('active');
-        current++;
-        document.getElementById('q' + current).classList.add('active');
-      } else {
-        showResult();
-      }
+  $("#btn-next").addEventListener("click", ()=>{
+    if (state.index < QUESTIONS.length - 1){
+      state.index++;
+      renderQuestion();
     }
+  });
 
-    // Restaurer l'écoute des clics sur les boutons
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('.qcm-option').forEach(btn => {
-        btn.addEventListener('click', () => {
-          btn.classList.toggle('selected');
-        });
-      });
-    });
-    });
+  $("#btn-finish").addEventListener("click", ()=>{
+    renderResults();
+  });
 
-    function showResult() {
-      document.getElementById('quiz').classList.add('hidden');
-      const answers = document.querySelectorAll('.qcm-option.selected');
-
-      if (answers.length === 0) {
-        document.getElementById('result').innerHTML = '<h2>Aucune réponse sélectionnée.</h2><p>Veuillez répondre aux questions pour voir votre score.</p><button onclick="location.reload()">Recommencer</button>';
-        document.getElementById('result').classList.remove('hidden');
-        return;
-      }
-
-      let score = 0;
-      answers.forEach(ans => score += parseInt(ans.dataset.value));
-
-      const percent = Math.round((score / 10) * 100);
-      let feedback = `<h2>Résultat : ${percent}% de bonnes réponses</h2>`;
-
-      if (score === 10) {
-        let message = {
-          green: 'Mot de votre énigme : <strong>Algorithme<br>Une série d'instructions ou de règles utilisées pour résoudre un problème ou effectuer une tâche.<br>Hallucination (IA)<br>Phénomène où un système d'IA génère des informations incorrectes ou inventées tout en les présentant comme factuelles, posant des défis particuliers dans le contexte éducatif.</strong>',
-          yellow: 'Mot de votre énigme : <strong>Biais<br>Le biais en intelligence artificielle (IA) fait référence à des disparités injustes ou des préjugés dans les résultats produits par des systèmes d'IA. Ces biais peuvent se produire lors de la collecte des données d'entraînement, du processus d'apprentissage automatique, ou même dans les décisions prises par les modèles d'IA.<br>LLM<br>Large Language Model: modèle de langage basé sur de vastes ensembles de données. C'est un modèle mathématique qui permet à une machine de générer du texte. Son principal objectif est de prédire la probabilité qu'un mot ou une séquence de mots apparaisse dans une phrase.</strong>',
-          red: 'Mot de votre énigme : <strong>Deep Learning<br>Branche du machine learning qui utilise des réseaux de neurones artificiels pour analyser des données complexes.<br>Machine Learning<br>Le machine learning (ou apprentissage automatique) est défini comme « un champ d'étude de l'intelligence artificielle qui vise à donner aux machines la capacité d'« apprendre » à partir de données, via des modèles mathématiques. »</strong>',
-          blue: 'Mot de votre énigme : <strong>GPT (Generative Pre-trained Transformer)<br>Architecture de modèle de langage utilisée dans de nombreux systèmes d'IA générative comme ChatGPT, capable de générer du texte cohérent et contextuel à partir de requêtes.<br>Prompt<br>Un prompt est une instruction que l'on rédige à destination d'une intelligence artificielle afin qu'elle produise un résultat qui réponde à notre demande. Il doit être précis et implique d'avoir des connaissances dans le domaine sur lequel nous souhaitons effectuer des recherches.</strong>'
-        };
-        feedback += `<p>Bravo ! Toutes les réponses sont justes.</p><div class="team-feedback">${message[team]}</div>`;
-      } else {
-        feedback += `<p>Vous pouvez recommencer pour tenter d’améliorer votre score.</p><button onclick="location.reload()">Recommencer</button>`;
-      }
-
-      feedback += `
-        <h3>Corrigé et ressources :</h3>
-        <ul>
-          <li><strong>Domaine PIX :</strong> <a class="link" href="https://pix.unilim.fr/wp-content/uploads/sites/28/2018/06/Referentiel-Vue_generale-Referentiels-PIX-2018-04-04.pdf" target="_blank">Référentiel</a></li>
-          <li><strong>IA & Texte :</strong> <a class="link" href="https://www.perplexity.ai/search/comment-reperer-un-texte-ecrit-3BPU1KpxTiK1phudih21Mg" target="_blank">Reconnaître un texte d’IA</a></li>
-          <li><strong>Créer avec IA :</strong>
-            <a class="link" href="https://www.perplexity.ai/search/quelle-ia-pour-generer-des-ima-55CF2caaSdexJ1kyun7S3g" target="_blank">Images gratuites</a> -
-            <a class="link" href="https://www.wooclap.com/fr/quiz-wizard/" target="_blank">Quiz Wizard</a> -
-            <a class="link" href="https://fr.vittascience.com/ia/" target="_blank">Vittascience</a>
-          </li>
-          <li><strong>Compétences humaines & IA :</strong>
-            <a class="link" href="https://www.intelligence-artificielle-school.com/alternance-et-entreprises/les-secteurs-impactes/" target="_blank">Métiers impactés</a> -
-            <a class="link" href="https://www.jobillico.com/blog/5-competences-que-lintelligence-artificielle-ne-pourra-jamais-remplacer/#:~:text=La%20cr%C3%A9ativit%C3%A9%20et%20l'innovation&text=La%20capacit%C3%A9%20de%20l'esprit,cr%C3%A9ative%20qui%20reste%20intrins%C3%A8quement%20humaine" target="_blank">Compétences irremplaçables</a> -
-            <a class="link" href="https://www.youtube.com/watch?v=y2a2ItHVz0A" target="_blank">IA au service de la personne</a>
-          </li>
-        </ul>`;
-
-      document.getElementById('result').innerHTML = feedback;
-      document.getElementById('result').classList.remove('hidden');
-    }
+  // Recommencer (revient à l’accueil pour resélectionner l’équipe)
+  $("#btn-retry").addEventListener("click", ()=>{
+    state = { team:null, index:0, selections:[] };
+    show("#screen-home");
+  });
+});
