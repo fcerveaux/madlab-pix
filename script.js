@@ -1,3 +1,4 @@
+alert("script.js chargé !");
 // ------------------------------
 // Données du quiz
 // ------------------------------
@@ -279,3 +280,4 @@ document.addEventListener("DOMContentLoaded", () => {
     show("#screen-home");
   });
 });
+
