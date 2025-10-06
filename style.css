@@ -1,86 +1,132 @@
-    body {
-      font-family: 'Roboto', sans-serif;
-      background-color: #f5f5f5;
-      color: #333;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: linear-gradient(90deg, #1976d2, #7e57c2);
-      color: #ffe600;
-      padding: 20px;
-      text-align: center;
-    }
-    .logo {
-      font-weight: bold;
-      font-size: 1.5em;
-      letter-spacing: 2px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    .question {
-      display: none;
-    }
-    .question.active {
-      display: block;
-    }
-    .qcm-option {
-      display: block;
-      width: 100%;
-      margin: 8px 0;
-      padding: 12px;
-      background-color: #e3f2fd;
-      border: 2px solid #1976d2;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      text-align: left;
-    }
-    .qcm-option:hover {
-      background-color: #bbdefb;
-    }
-    .qcm-option.selected {
-      background-color: #1976d2;
-      color: white;
-    }
-    .result {
-      display: none;
-    }
-    .team-feedback {
-      font-weight: bold;
-      margin-top: 20px;
-    }
-    .hidden {
-      display: none;
-    }
-    footer {
-      background-color: #0d47a1;
-      color: white;
-      text-align: center;
-      padding: 15px;
-      margin-top: 30px;
-    }
-    .team-selection button {
-      margin: 10px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      color: white !important;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .green { background-color: #43a047 !important; }
-    .yellow { background-color: #fbc02d !important; }
-    .red { background-color: #e53935 !important; }
-    .blue { background-color: #1e88e5 !important; }
-    .link {
-      margin-top: 10px;
-      display: block;
-    }
+:root{
+  --pix-blue:#1976d2;
+  --pix-deep:#0d47a1;
+  --pix-violet:#7e57c2;
+  --pix-yellow:#ffe600;
+  --bg:#f5f5f5;
+  --text:#333;
+  --ok:#2e7d32;
+  --error:#c62828;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:'Roboto',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.5;
+}
+
+/* Header façon PIX */
+.site-header{
+  background: linear-gradient(90deg,var(--pix-blue),var(--pix-violet));
+  padding:24px 16px;
+  text-align:center;
+}
+.site-title{
+  margin:0;
+  font-size:clamp(22px,4vw,36px);
+  font-weight:800;
+  color:var(--pix-yellow);
+  letter-spacing:.5px;
+}
+
+/* Container */
+.container{
+  max-width:960px;
+  margin:24px auto;
+  padding:16px;
+  background:#fff;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+}
+
+/* Home */
+.teams{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(160px,1fr));
+  gap:12px;
+  margin-top:12px;
+}
+.team{
+  padding:12px 16px;
+  border:none;
+  border-radius:10px;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+.team-green{background:#43a047}
+.team-yellow{background:#fbc02d;color:#1f1f1f}
+.team-red{background:#e53935}
+.team-blue{background:#1e88e5}
+
+/* Quiz */
+.hidden{display:none !important}
+.quiz-header{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:12px;font-weight:600;color:var(--pix-deep)
+}
+#question-text{margin:.2rem 0 1rem}
+
+.options{display:grid;gap:10px}
+.option{
+  display:flex;align-items:flex-start;gap:10px;
+  border:2px solid var(--pix-blue);
+  background:#e3f2fd;
+  border-radius:10px;
+  padding:12px;
+  cursor:pointer;
+  transition:transform .05s ease, background .2s ease, border-color .2s ease;
+}
+.option:hover{background:#d7ebff}
+.option input{margin-top:4px;transform:scale(1.1)}
+.option.selected{background:#cfe8ff;border-color:#135aa5}
+
+.actions{
+  display:flex;gap:10px;justify-content:flex-end;margin-top:16px
+}
+.btn-primary,.btn-secondary{
+  padding:10px 16px;border-radius:10px;border:2px solid transparent;
+  font-weight:700;cursor:pointer
+}
+.btn-primary{background:var(--pix-blue);color:#fff}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-secondary{background:#fff;border-color:#cfd8dc;color:#37474f}
+.btn-secondary:hover{border-color:#90a4ae}
+
+/* Résultats */
+#score-line{font-size:18px;font-weight:700;margin-top:0}
+.review-block{
+  border:1px solid #e0e0e0;border-left:6px solid #bdbdbd;
+  border-radius:8px;padding:12px;margin:14px 0;background:#fafafa
+}
+.review-title{margin:.2rem 0 10px;font-weight:700}
+.review-options{margin-left:0;padding-left:16px}
+.review-options li{margin:6px 0}
+.review-options .correct{color:var(--ok);font-weight:700}
+.review-options .chosen{border-bottom:2px solid #9e9e9e}
+
+.more-links{margin:8px 0 0 0;padding-left:18px}
+.more-links li{margin:6px 0}
+
+.final-feedback{
+  margin-top:16px;
+  padding:12px 14px;
+  border-radius:10px;
+  background:#e8f5e9;
+  color:#1b5e20;
+  font-weight:700;
+  border:2px solid #a5d6a7;
+  word-break:break-word;
+  white-space:pre-line; /* pour Our\nWorld */
+}
+
+.site-footer{
+  margin:18px auto 40px;
+  max-width:960px;
+  text-align:center;
+  color:#546e7a;
+  font-size:14px;
+}
