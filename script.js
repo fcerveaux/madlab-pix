@@ -243,40 +243,60 @@ function renderResults(){
 // ------------------------------
 document.addEventListener("DOMContentLoaded", () => {
 
-  // Choix de l’équipe
-  $$(".team").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      state.team = btn.dataset.team;
-      state.index = 0;
-      state.selections = Array.from({length: QUESTIONS.length}, ()=>[]);
-      $("#screen-home").classList.add("hidden");
-      show("#screen-quiz");
-      renderQuestion();
-    });
-  });
+  // ------------------------------
+// Actions / Navigation (robustes)
+// ------------------------------
 
-  // Navigation quiz
-  $("#btn-prev").addEventListener("click", ()=>{
-    if (state.index > 0){
+// Délégation des clics pour les boutons d'équipe (même si le DOM charge lentement)
+document.addEventListener("click", (e) => {
+  const teamBtn = e.target.closest(".team");
+  if (teamBtn) {
+    state.team = teamBtn.dataset.team;
+    state.index = 0;
+    state.selections = Array.from({ length: QUESTIONS.length }, () => []);
+    show("#screen-quiz");
+    renderQuestion();
+  }
+});
+
+// Bouton Précédent
+document.addEventListener("click", (e) => {
+  if (e.target.id === "btn-prev") {
+    if (state.index > 0) {
       state.index--;
       renderQuestion();
     }
-  });
+  }
+});
 
-  $("#btn-next").addEventListener("click", ()=>{
-    if (state.index < QUESTIONS.length - 1){
+// Bouton Suivant
+document.addEventListener("click", (e) => {
+  if (e.target.id === "btn-next") {
+    if (state.index < QUESTIONS.length - 1) {
       state.index++;
       renderQuestion();
     }
-  });
+  }
+});
 
-  $("#btn-finish").addEventListener("click", ()=>{
+// Bouton Valider
+document.addEventListener("click", (e) => {
+  if (e.target.id === "btn-finish") {
     renderResults();
-  });
+  }
+});
 
-  // Recommencer (revient à l’accueil pour resélectionner l’équipe)
-  $("#btn-retry").addEventListener("click", ()=>{
-    state = { team:null, index:0, selections:[] };
+// Bouton Recommencer
+document.addEventListener("click", (e) => {
+  if (e.target.id === "btn-retry") {
+    state = { team: null, index: 0, selections: [] };
     show("#screen-home");
+  }
+});
+
+// Afficher l’écran d’accueil dès que possible (si besoin)
+show("#screen-home");
+
   });
 });
+
